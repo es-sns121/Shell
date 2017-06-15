@@ -1,7 +1,6 @@
 all: esh
 
-esh: main.cpp
-	g++ -Wall -g -o esh main.cpp
-
+esh: esh.h esh.cpp main.cpp 
+	g++ -Wall -g -o esh esh.cpp main.cpp
 clean: 
-	rm -rf esh
+	rm -f esh

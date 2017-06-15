@@ -1,20 +1,40 @@
-#ifndef SHELL_H
-#define SHELL_H
+#ifndef ESH_H
+#define ESH_H
+
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
+#include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
+
+namespace esh {
 
 class esh_shell {
 	public:
 		esh_shell();
-		~esh_shell();
-		void start();
-
+		int start();
+		void set_debug(const bool &);
 	private:
 
+		bool read_flag;
+
 	/* Strings that make up the prompt: path + shell prefix = shell_prompt */
-		string shell_prefix;
-		string path_to_cwd;
-		string shell_prompt;
+		std::string shell_prefix;
+		std::string path_to_cwd;
+		std::string shell_prompt;
 	
-	/* Update the prompt upon shell startup and after changing directories */
+	/* SIGINT signal handler */
+		void sigint_handler( int );
+
+	/* Update the path to the current working directory */
+		void update_path();
+
+	/* Update the shell prompt string */
 		void update_prompt();
 
 	/* Tokenize a line of input */
@@ -38,6 +58,8 @@ class esh_shell {
 		 *		help
 		 *		exit
 		 */
-}
+};
 
-#endif /* SHELL_H */
+} /* namespace esh */
+
+#endif /* ESH_H */

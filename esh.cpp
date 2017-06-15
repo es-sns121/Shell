@@ -1,176 +1,78 @@
-/*
-	Author: Evan Smith
-	Date:   6/13/2017
-*/
-
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <string.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <vector>
+#include "esh.h"
 
 using namespace std;
+using namespace esh;
 
-string shell_prefix = " $> ";
+#define DEFAULT_PREFIX " $> "
+#define BUFSIZE 512
 
-string path;
 
-void sigint_handler(int signo) {
-	cout << endl << path << shell_prefix << flush;
-	signal(SIGINT, sigint_handler);
-}
-
-/* esh built ins */
-int esh_exit(char **args) {
-	return 1;
-}
-
-int esh_launch(char **args) {
-	/* Check that first argument isn't a built in. */
+void print_prompt (string * p) {
+	static string * prompt = NULL;
+	static bool first_call(true);
 	
-	if (0 == strcmp(args[0], "exit")) {
+	if (first_call == true && p != NULL) {
 		
-		return esh_exit(args);
+		prompt = p;
+		first_call = false;
 	
-	} else if (NULL != args[0]) {
-	
-		pid_t pid;
-		
-		pid = fork();
-		
-		if (0 == pid) {
-		/* Child Process */
-			
-			execvp(args[0], args);
-			
-			perror("esh");
-			
-			exit(-1);
-		
-		} else if (pid > 0) {
-		/* Parent Process */
-			int status;
-
-			do {
-				
-				waitpid(-1, &status, WUNTRACED);
-			
-			} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-
-		} else {
-		/* Error */
-			
-			perror("esh");
-			
-		}
 	}
-
-	return 0;
-}
-
-void free_args(char **args) {
-	char * arg;
-	size_t index = 0;
-	arg = args[0];
-
-	while (NULL != arg) {
-		free(arg);
-		arg = args[++index];
+	
+	if (prompt != NULL) {
+		cout << *prompt << flush;
 	}
 }
 
-char **view(vector<char *> & tokenized_input) {
-	size_t size = tokenized_input.size();
-	/* size + 1 to allow the array to be null terminated */
-	char **args = (char **) malloc(sizeof(char *) * size);
-	
-	for (size_t i = 0; i < size; ++i) {
-		args[i] = tokenized_input[i];
-	}
+void SIGINT_handler (int signo) {
 
-	tokenized_input.clear();
+	signal(SIGINT, SIGINT_handler);
+	cout << endl;	
+	print_prompt(NULL);
 
-	args[size] = NULL;
-
-	return args;
 }
 
-char **esh_read_line() {
+esh_shell::esh_shell () : shell_prefix(DEFAULT_PREFIX) {
 	
-	string input;
-	stringstream input_line;
-	string token;
-	vector<char *> tokenized_input;
-	char ** args = NULL;
+	debug = false;
 
-	getline(cin, input);
-	if (cin.eof())
-		return args;
-
-	input_line.str(input);
-
-	while (input_line >> token) {
+	update_prompt();
 	
-		// Handle file redirection here. Look for < > << >> and skip these 
-		// tokens along with the following file name. 
-
-		tokenized_input.push_back(strdup(token.c_str()));
-	
-		token.clear();
-	}
-	
-	char *n = NULL;
-	tokenized_input.push_back(n);
-
-	args = view(tokenized_input);
-
-	return args;
+	print_prompt(&shell_prompt);
 }
 
-void esh_loop() {
-	char **args; 
+void esh_shell::update_path	() {
 	
-	while (true) {
-		cout << path << shell_prefix;
+	char * buf = (char *) malloc (sizeof(char) * BUFSIZE);
 
-		args = esh_read_line();
-		
-		if (NULL == args) {
-			cout << endl;	
-			break;
-		}
+/* Get the current working directory */
+	getcwd(buf, BUFSIZE-1);
 
-		if (esh_launch(args)) {
-			free_args(args);
-			break;
-		}
-	}	
-}
-
-#define BUFSIZE 50
-
-int main(int argc, char *argv[], char *envp[]) {
-		
-	/* register SIGINT signal handler */
-	signal(SIGINT, sigint_handler);
-
-/* Set path */
-	char *buf = (char *) malloc(sizeof(char) * BUFSIZE);
-	/* Get current working directory */
-	getcwd(buf, BUFSIZE);
-
-	path = string(buf);
+	path_to_cwd.assign(buf);
 	
 	free(buf);
 
-/* Shell loop */
-	esh_loop();
+}
 
-/* Clean up */
+void esh_shell::update_prompt () {
+	
+	update_path();
+
+	shell_prompt.assign(path_to_cwd + shell_prefix);
+
+}
+
+void get_line() {
+	
+}
+
+int esh_shell::loop () {
+	do {
+		get_line();
+	} while (read_flag);
 
 	return 0;
+}
+
+int esh_shell::start () {
+	return loop();
 }
