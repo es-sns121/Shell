@@ -1,6 +1,10 @@
-all: esh
+top = .
 
-esh: esh.h esh.cpp main.cpp 
-	g++ -Wall -g -o esh esh.cpp main.cpp
-clean: 
-	rm -f esh
+src = $(top)/src
+
+production_host: 
+	$(MAKE) -C $(src)
+
+.PHONY: clean
+clean:
+	$(MAKE) -C $(src) clean
