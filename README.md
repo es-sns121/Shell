@@ -5,8 +5,11 @@ It supports file redirection (future) and piping
 (future). It has a number of builtin functions:
 help, exit, and cd (future).
 
+This application is written in c++ and compiled with
+gcc compiler version 4.4.7.
+
 ## Building
-If the makefile is present and a g++ compiler is in the $PATH, 
+If the makefile is present and a valid g++ compiler is in $PATH, 
 just type:
 	
 	> make
@@ -21,7 +24,9 @@ To quit, type 'exit' and enter, or type CNTRL-D and enter.
 ## Source directory (src)
 ### Files
 
-Makfile
+Makefile
+
+- Builds application
 
 main.cpp
 
@@ -29,7 +34,7 @@ main.cpp
 
 loop.h & loop.cpp
 
-- Main shell loop
+- Shell loop. Read, parse, execute.
 
 read.h & read.cpp
 
