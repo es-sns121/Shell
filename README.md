@@ -13,6 +13,7 @@ just type:
 
 ## Running the shell
 Type:
+	
 	> ./esh
 
 To quit, type 'exit' and enter, or type CNTRL-D and enter.
