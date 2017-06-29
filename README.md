@@ -8,6 +8,7 @@ help, exit, and cd (future).
 ## Building
 If the makefile is present and a g++ compiler is in the $PATH, 
 just type:
+	
 	> make
 
 ## Running the shell
