@@ -1,4 +1,4 @@
-# esh : Evan's SHell 
+# eshell : Evan's Shell 
 
 This is a simple shell program written in c++. 
 It supports file redirection (future) and piping
@@ -14,7 +14,7 @@ just type:
 ## Running the shell
 Type:
 	
-	> ./esh
+	> ./eshell
 
 To quit, type 'exit' and enter, or type CNTRL-D and enter.
 
@@ -25,6 +25,20 @@ Makfile
 
 main.cpp
 
-eshell.h
+- Main entry point
 
-eshell.cpp
+loop.h & loop.cpp
+
+- Main shell loop
+
+read.h & read.cpp
+
+- Read input from stdin
+
+parse.h & parse.cpp
+
+- Parse line of input
+
+execute.h & execute.cpp
+
+- Execute parsed arguments
