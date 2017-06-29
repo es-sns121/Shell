@@ -1,13 +1,15 @@
 top = ..
 
 # source files
-src = $(top)/src/main.cpp $(top)/src/eshell.cpp
+main = $(top)/src/main.cpp
+util = $(top)/src/loop.cpp  $(top)/src/read.cpp $(top)/src/parse.cpp $(top)/src/execute.cpp
+src = $(main) $(util)
 
 # binary
 bin = eshell
 
 # rule dependencies 
-dep = $(top)/src/eshell.h $(src)
+dep = $(top)/src/loop.h $(top)/src/read.h $(top)/src/parse.h $(top)/src/execute.h $(src)
 
 flags = -Wall -g 
 
