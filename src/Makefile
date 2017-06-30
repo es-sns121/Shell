@@ -11,7 +11,7 @@ bin = eshell
 # rule dependencies 
 dep = $(top)/src/loop.h $(top)/src/read.h $(top)/src/parse.h $(top)/src/execute.h $(src)
 
-flags = -Wall -g 
+flags = -Wall -g -std=c++0x 
 
 all: eshell
 

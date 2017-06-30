@@ -4,6 +4,6 @@
 #include <string>
 #include <vector>
 
-int execute(const std::vector<std::string> & args);
+int execute(std::vector<std::string> & args);
 
 #endif /* EXECUTE_H */

@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include <string>
@@ -28,29 +29,93 @@ char ** view (const vector<string> & args)
 void redirect(vector<string> & args)
 {
 	vector<string>::iterator it = args.begin();
-	vector<string>::iterator del;
-	for (; it != args.end(); it++) {
-		if (*it == ">") {
-			del = it;
-			it++;
-			args.erase(del);
+	
+	int fd;
+	
+	for (; it != args.end();) {
+		
+		if ((*it).compare(">") == 0) {
 
-		} else if (*it == "<") {
+			/* Erase the '>' */
+			args.erase(it);
+
+			if (it == args.end()) {
+				fprintf(stderr, "Unexpected newline\n");
+				exit(1);
+			}
+
+			fd = open((*it).c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0644);
+		
+			/* Redirect stdout */
+			if (dup2(fd, STDOUT_FILENO) != STDOUT_FILENO) {
+				perror("dup2");
+				exit(1);
+			}
+		
+			close(fd);
+
+			/* Erase the filename */
+			args.erase(it);
+		
+		} else if ((*it).compare(">>") == 0) {
+
+			/* Erase the '>>' */
+			args.erase(it);
+
+			if (it == args.end()) {
+				fprintf(stderr, "Unexpected newline\n");
+				exit(1);
+			}
+
+			fd = open((*it).c_str(), O_WRONLY | O_CREAT, 0644);
 			
-		} else if (*it == ">>") {
+			if (dup2(fd, STDOUT_FILENO) != STDOUT_FILENO) {
+				perror("dup2");
+				exit(1);
+			}
 
+			close(fd);
+
+			/* Erase the filename */
+			args.erase(it);
+
+		} else if ((*it).compare("<") == 0) {
+
+			/* Erase the '<' */
+			args.erase(it);
+
+			if (it == args.end()) {
+				fprintf(stderr, "Unexpected newline\n");
+				exit(1);
+			}
+
+			fd = open((*it).c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0644);
+			
+			if (dup2(fd, STDIN_FILENO) != STDIN_FILENO) {
+				perror("dup2");
+				exit(1);
+			}
+
+			close(fd);
+
+			/* Erase the filename */
+			args.erase(it);
+			
+		} else {
+			++it;
 		}
 	}
+	
 }
 
-int execute(const vector<string> & args)
+int execute(vector<string> & args)
 {
 
-/* Empty argument list */
+	/* Empty argument list */
 	if (args.size() == 0)
 		return 1;
 
-/* Exit */
+	/* Exit */
 	if (args[0].compare("exit") == 0)
 		return 0;
 
@@ -58,21 +123,24 @@ int execute(const vector<string> & args)
 	pid_t pid = fork();
 
 	if (pid == 0) {
-/* Child process */
-		
-	/* Convert the vector to a null terminated array of c style strings */
+	/* Child process */
+
+		/* Handle file redirection */
+		redirect(args);
+
+		/* Convert the vector to a null terminated array of c style strings */
 		char ** new_args = view(args);	
-		
+			
 		execvp(new_args[0], new_args);
 	
-	/* If execvp returns, an error occured. */
-		perror(args[0].c_str());
+		/* If execvp returns, an error occured. */
+		perror(new_args[0]);
 		exit(1);
 	
 	} else if (pid > 0) {
-/* Parent process */
+	/* Parent process */
 
-	/* Wait for all children */
+		/* Wait for all children */
 		do {
 
 			(void) waitpid(-1, &status, WUNTRACED);
@@ -86,6 +154,8 @@ int execute(const vector<string> & args)
 		perror("fork");
 		return -1;
 	}
+
+	args.clear();
 
 	return 1;
 }
