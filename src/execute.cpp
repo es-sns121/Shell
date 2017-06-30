@@ -25,8 +25,27 @@ char ** view (const vector<string> & args)
 
 }
 
+void redirect(vector<string> & args)
+{
+	vector<string>::iterator it = args.begin();
+	vector<string>::iterator del;
+	for (; it != args.end(); it++) {
+		if (*it == ">") {
+			del = it;
+			it++;
+			args.erase(del);
+
+		} else if (*it == "<") {
+			
+		} else if (*it == ">>") {
+
+		}
+	}
+}
+
 int execute(const vector<string> & args)
 {
+
 /* Empty argument list */
 	if (args.size() == 0)
 		return 1;
@@ -39,8 +58,11 @@ int execute(const vector<string> & args)
 	pid_t pid = fork();
 
 	if (pid == 0) {
-	/* Child process */
+/* Child process */
+		
+	/* Convert the vector to a null terminated array of c style strings */
 		char ** new_args = view(args);	
+		
 		execvp(new_args[0], new_args);
 	
 	/* If execvp returns, an error occured. */
@@ -48,7 +70,7 @@ int execute(const vector<string> & args)
 		exit(1);
 	
 	} else if (pid > 0) {
-	/* Parent process */
+/* Parent process */
 
 	/* Wait for all children */
 		do {
