@@ -1,7 +1,7 @@
 # eshell : Evan's Shell 
 
 This is a simple shell program written in c++. 
-It supports file redirection (future) and piping
+It supports file redirection and piping
 (future). It has a number of builtin functions:
 help, exit, and cd (future).
 
