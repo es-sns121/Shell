@@ -67,7 +67,7 @@ void redirect(vector<string> & args)
 				exit(1);
 			}
 
-			fd = open((*it).c_str(), O_WRONLY | O_CREAT, 0644);
+			fd = open((*it).c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
 			
 			if (dup2(fd, STDOUT_FILENO) != STDOUT_FILENO) {
 				perror("dup2");
